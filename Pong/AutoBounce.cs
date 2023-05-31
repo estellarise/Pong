@@ -2,12 +2,11 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
-using static System.Random;
 
 namespace Pong
 {
     public class AutoBounce : Game
-    {
+    {   // not best practice, should use class for each object: speed, texture, position
         Texture2D ballTexture;
         Texture2D paddleLeftTexture;
         Texture2D paddleRightTexture;
@@ -26,7 +25,6 @@ namespace Pong
         int scoreLeft;
         int scoreRight;
         Random rnd;
-        string winner;
 
         public AutoBounce()
         {
@@ -36,8 +34,9 @@ namespace Pong
         }
 
         protected override void Initialize()
-        {
-            rnd = new Random();
+        {   
+            rnd = new Random(); // instantiate random object only once to use randomness correctly
+
             //ball
             ballTexture = Content.Load<Texture2D>("ball_blue_small");
             ballPosition = new Vector2(_graphics.PreferredBackBufferWidth / 2,
@@ -69,10 +68,10 @@ _graphics.PreferredBackBufferHeight / 2);
 
             // TODO: use this.Content to load your game content here
         }
-        protected void resetRound()
+        protected void ResetRound()
         {
             ballPosition = new Vector2(_graphics.PreferredBackBufferWidth / 2,
-                _graphics.PreferredBackBufferHeight / 2);
+                _graphics.PreferredBackBufferHeight / 2); // reset ball to middle
             ballVelocity.X = 0;
             ballVelocity.Y = 0;
         }
@@ -80,17 +79,15 @@ _graphics.PreferredBackBufferHeight / 2);
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
-            if (scoreLeft == 7)
+            if (scoreLeft == 7) // left wins
             {
-                winner = "left";
                 starLeftTexture = Content.Load<Texture2D>("star");
                 if (Keyboard.GetState().IsKeyDown(Keys.Space) ){
-                    Initialize();
+                    Initialize(); // restart entire game
                 }
             }
-            if (scoreRight == 7)
+            if (scoreRight == 7) // right wins
             {
-                winner = "right";
                 starRightTexture = Content.Load<Texture2D>("star");
                 if (Keyboard.GetState().IsKeyDown(Keys.Space))
                 {
@@ -101,23 +98,26 @@ _graphics.PreferredBackBufferHeight / 2);
             // bounce off wall by changing direction vector
             if (ballPosition.Y > _graphics.PreferredBackBufferHeight - ballTexture.Height / 2) // bottom wall
             {
-                ballVelocity.Y = -1;
+                ballVelocity.Y = -1; // perpendicular component changed, parallel preserved (X not modified)
             }
             else if (ballPosition.Y < ballTexture.Height / 2) // top wall
             {
                 ballVelocity.Y = 1;
             }
 
-            // bounce off paddle
+            /* bounce off paddle */
+            // check ball hits paddle in Y coord
             bool paddleLeftHeight = (ballPosition.Y  + ballTexture.Height/2 ) > paddleLeftPosition.Y
                 && (ballPosition.Y + ballTexture.Height / 2) < (paddleLeftPosition.Y + paddleLeftTexture.Height);
             bool paddleRightHeight = (ballPosition.Y + ballTexture.Height / 2) > paddleRightPosition.Y
                 && (ballPosition.Y + ballTexture.Height / 2) < (paddleRightPosition.Y + paddleRightTexture.Height);
+            // AND it with paddle's X coord; i.e. ball hits paddle vertically and horizontally
             bool hitsLeftPaddle = (ballPosition.X < paddleLeftTexture.Width + ballTexture.Width / 2) && paddleLeftHeight;
             bool hitsRightPaddle = (ballPosition.X > _graphics.PreferredBackBufferWidth - ballTexture.Width / 2 - paddleRightTexture.Width) && paddleRightHeight;
+
             if (hitsRightPaddle) // right paddle
             {
-                ballVelocity.X = -1;
+                ballVelocity.X = -1; // vertical preserved, horizontal changes direction
             }
             else if (hitsLeftPaddle) // left paddle
             {
@@ -129,13 +129,13 @@ _graphics.PreferredBackBufferHeight / 2);
             {
                 scoreLeft += 1;
                 scoreLeftTexture = Content.Load<Texture2D>("number_" + scoreLeft.ToString());
-                resetRound();
+                ResetRound();
             }
             else if (ballPosition.X < ballTexture.Width / 2) // left wall
             {
                 scoreRight += 1;
                 scoreRightTexture = Content.Load<Texture2D>("number_" + scoreRight.ToString());
-                resetRound();
+                ResetRound();
             }
 
             // update ball position
@@ -147,15 +147,16 @@ _graphics.PreferredBackBufferHeight / 2);
 
             if (ballVelocity.X == 0 && ballVelocity.Y == 0) // if ball is stopped
             {
-                if(kstate.IsKeyDown(Keys.Space)) // TODO: add random start vector
+                if(kstate.IsKeyDown(Keys.Space)) // press space to start it
                 {
-
+                    // choose one of four random directions: 45, 135, 225, 315 degrees
                     int xRnd = rnd.Next(0, 2); // 0 or 1
                     int yRnd = rnd.Next(0, 2);
                     ballVelocity.X = -1 + xRnd * 2; // -1 or 1
                     ballVelocity.Y = -1 + yRnd * 2;
                 }
             }
+            // Right paddle controller: Up, Down
             if (kstate.IsKeyDown(Keys.Up))
             {
                 paddleRightPosition.Y -= paddleSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -166,6 +167,7 @@ _graphics.PreferredBackBufferHeight / 2);
                 paddleRightPosition.Y += paddleSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
             }
 
+            // Left paddle controller: W, S
             if (kstate.IsKeyDown(Keys.W))
             {
                 paddleLeftPosition.Y -= paddleSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -177,13 +179,16 @@ _graphics.PreferredBackBufferHeight / 2);
             }
 
             // keep paddle in bounds
-            paddleLeftPosition.Y = boundPaddle(paddleLeftPosition, paddleLeftTexture);
-            paddleRightPosition.Y = boundPaddle(paddleRightPosition, paddleLeftTexture);
+            paddleLeftPosition.Y = boundPaddle(paddleLeftPosition);
+            paddleRightPosition.Y = boundPaddle(paddleRightPosition);
             base.Update(gameTime);
         }
 
-        protected float boundPaddle(Vector2 paddleLRPosition, Texture2D paddleLeftTexture)
-        {   // not best practice, should use class for each paddle
+        // returns Y coord of where paddle should be
+        // 0 if it exceeds top, bottom - paddle height if exceeds bottom
+        // otherwise paddle in bounds, return current Y coord
+        protected float boundPaddle(Vector2 paddleLRPosition)
+        {
             if (paddleLRPosition.Y > _graphics.PreferredBackBufferHeight - paddleLeftTexture.Height) // paddleLeft and paddleRight use same texture
             {
                 return _graphics.PreferredBackBufferHeight - paddleLeftTexture.Height;
@@ -202,7 +207,7 @@ _graphics.PreferredBackBufferHeight / 2);
             GraphicsDevice.Clear(Color.LightGoldenrodYellow);
 
             _spriteBatch.Begin();
-            _spriteBatch.Draw(
+            _spriteBatch.Draw( // draw ball centered, refer to https://docs.monogame.net/articles/getting_started/5_adding_basic_code.html
                 ballTexture,
                 ballPosition,
                 null,
@@ -215,6 +220,7 @@ _graphics.PreferredBackBufferHeight / 2);
             );
             _spriteBatch.Draw(paddleLeftTexture, paddleLeftPosition, Color.White);
             _spriteBatch.Draw(paddleRightTexture, paddleRightPosition, Color.White);
+            // draw scores and stars at 1/4 and 3/4 the way from left of screen
             _spriteBatch.Draw(scoreLeftTexture, new Vector2(_graphics.PreferredBackBufferWidth/4, _graphics.PreferredBackBufferHeight / 6), Color.White);
             _spriteBatch.Draw(scoreRightTexture, new Vector2(_graphics.PreferredBackBufferWidth*3/4, _graphics.PreferredBackBufferHeight / 6), Color.White);
             _spriteBatch.Draw(starLeftTexture, new Vector2(_graphics.PreferredBackBufferWidth / 4 , _graphics.PreferredBackBufferHeight / 6 - 2 * scoreRightTexture.Height), Color.White);
