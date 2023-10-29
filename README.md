@@ -1,8 +1,12 @@
 # Pong
 ## Download instructions
-Download key for private distribution: https://estellarise.itch.io/pong/download/HzD5bwjXpTiQy0NrAfou6MbT3wfcEtjKwQ_kzRTL
+Download key for private distribution: 
+
+https://estellarise.itch.io/pong/download/HzD5bwjXpTiQy0NrAfou6MbT3wfcEtjKwQ_kzRTL
+
 Unzip, run Pong.exe
 
+### Rules
 Goal: Play until 7!
 
 Controls:
