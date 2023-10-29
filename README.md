@@ -6,16 +6,13 @@ https://estellarise.itch.io/pong/download/HzD5bwjXpTiQy0NrAfou6MbT3wfcEtjKwQ_kzR
 
 Unzip, run Pong.exe
 
-### Rules
+### Gameplay
 Goal: Play until 7!
 
 Controls:
-
-Left Player: W,S
-
-Right Player: Up, Down
-
-Start new round / reset: Space
+- Left Player: W,S
+- Right Player: Up, Down
+- Start new round / reset: Space
 
 ## Tools
 - Framework: Monogame with C#
