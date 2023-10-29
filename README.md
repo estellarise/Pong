@@ -21,24 +21,28 @@ Start new round / reset: Space
 
 ## Notes to the Beginner Game Dev Explorer
 Program.cs is the entry point to the program/game. It instantiates the Autobounce class and runs it. That's it.
-You can break games into roughly two parts, much like a website: objects is to text as art is to CSS.
+
+You can break games into roughly two parts, much like a website: objects is to HTML as art is to CSS.
+
 Or to put it another way, basic shapes swim around the screen and you splash art onto them.
+
 The code is split similarly. Under the hood, there is an update/draw loop. Update is to objects as draw is to art.
+
 Use update for repositioning, draw to pop the art in. (N.B.: Don't mix update code with draw code!) 
-For fellow intermediate coders out there, you can treat the update function as "main." In that regard, 
-I can probably use more functions than I actually have. On the other hand, the current structure is reminiscent of the 
+
+For fellow C/++ coders out there, you can treat the update function as "main." Given this idea, 
+to improve the project I would use more functions than I actually have. In that line of thought, it'd be good to create a class of position, 
+speed, and texture to keep objects organized. Right now, the current structure is kept as a nod to the 
 tutorial code provided by Monogame, which will hopefully provide ease of understanding to the viewer.
-In that line of thought, it'd be good to create a class of position, speed, and texture to keep objects organized. 
-I totally kept it like this for pedagogical purposes, and not because I'm lazy. Yup.
+
+
 ### Misc Notes
 - "Run" / F5 only work properly when a solution is chosen (double-click)
-- Build skipped when local timestamp of target is older than latest timestamp (looking at you, time travelers!)
+- Build is skipped when local timestamp of target is older than latest timestamp (looking at you, time travelers!)
 
 ## To do
 - Licensing
-- Make repo public?
 
-## Further research
+## Further tinkering
 - Figure out how to send C# code (is itch the only way?)
-- What's calling Update Draw?
 - Affix art to an underlying hitbox object
